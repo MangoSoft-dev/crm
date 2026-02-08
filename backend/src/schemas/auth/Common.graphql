@@ -1,0 +1,6 @@
+scalar AWSDateTime
+scalar AWSJSON
+
+type Query {
+    health: String
+}

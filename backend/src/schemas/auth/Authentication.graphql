@@ -1,0 +1,34 @@
+
+type Authentication {
+  id: Int
+  token: String,
+  refreshToken: String
+}
+
+type CustomResponse {
+  code: String,
+  message: String,
+  data: AWSJSON
+}
+
+union AutenticationResult = Authentication | CustomResponse
+
+type Mutation {
+
+  login(username: String!, password: String!): AutenticationResult
+
+  loginOTP(id: String!, code: String!): AutenticationResult
+
+  loginOTPResendCode(id: String!, code: String): CustomResponse
+
+  #loginFacebook(token: String!, id: String!): AutenticationResult
+
+  #loginGoogle(token: String!): AutenticationResult
+
+  recoveryPassword(email: String!): CustomResponse
+
+  forceChangePassword(key: String!, newPassword: String!, code: String!): CustomResponse
+
+  refreshToken(token: String!): AutenticationResult
+
+}
