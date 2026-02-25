@@ -19,7 +19,8 @@ export const useLoginForm = () => {
         setErrorMessage(null); // Reset previous error
 
         try {
-            const result = await loginMutation.mutateAsync(values);
+            const response = await loginMutation.mutateAsync(values);
+            const result = response.login;
 
             if (isAuthentication(result)) {
                 // Successful login: Save token and refreshToken in Zustand

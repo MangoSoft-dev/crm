@@ -2,12 +2,14 @@ import React from 'react';
 import { Layout, Input, Badge, Avatar, Dropdown } from 'antd';
 import { SearchOutlined, BellFilled, UserOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useUserStore } from '../../../features/user';
 import './TopHeader.scss';
 
 const { Header } = Layout;
 
 export const TopHeader: React.FC = () => {
     const { t, i18n } = useTranslation('layout');
+    const user = useUserStore((state) => state.user);
 
     const changeLanguage = (lng: string) => {
         i18n.changeLanguage(lng);
@@ -48,10 +50,19 @@ export const TopHeader: React.FC = () => {
 
                 <div className="user-profile-section">
                     <div className="user-info">
-                        <span className="user-name">Usuario Demo</span>
-                        <span className="user-role">{t('layout.header.role')}</span>
+                        <span className="user-name">
+                            {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
+                        </span>
+                        <span className="user-role">
+                            {user?.account ? user.account.name : t('layout.header.role')}
+                        </span>
                     </div>
-                    <Avatar size={40} icon={<UserOutlined />} className="user-avatar" src="https://ui-avatars.com/api/?name=Usuario+Demo&background=f0f0f0&color=2E7D32" />
+                    <Avatar
+                        size={40}
+                        icon={!user?.avatarUrl && !user ? <UserOutlined /> : undefined}
+                        className="user-avatar"
+                        src={user?.avatarUrl || (user ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName + ' ' + user.lastName)}&background=f0f0f0&color=2E7D32` : undefined)}
+                    />
                 </div>
             </div>
         </Header>

@@ -1,5 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
-import { graphqlClient } from './graphqlClient';
+import { useMutationGraphQL } from '../../../hooks/useQueryTanstack';
 import { AuthenticationResult, LoginCredentials } from '../types';
 
 const LOGIN_MUTATION = `
@@ -24,15 +23,5 @@ interface LoginResponse {
 }
 
 export const useLoginMutation = () => {
-  return useMutation({
-    mutationFn: async (credentials: LoginCredentials) => {
-      const response = await graphqlClient<LoginResponse, LoginCredentials>(
-        LOGIN_MUTATION,
-        credentials
-      );
-
-      // We return the union type defined in GraphQL (can be Authentication or CustomResponse)
-      return response.login;
-    },
-  });
+  return useMutationGraphQL({ query: LOGIN_MUTATION });
 };

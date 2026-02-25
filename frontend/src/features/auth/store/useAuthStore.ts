@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { useUserStore } from '../../user';
 
 interface AuthState {
     token: string | null;
@@ -25,12 +26,14 @@ export const useAuthStore = create<AuthState>()(
                 }),
 
             // Action to clear the session
-            logout: () =>
+            logout: () => {
+                useUserStore.getState().clearUser();
                 set({
                     token: null,
                     refreshToken: null,
                     isAuthenticated: false,
-                }),
+                });
+            },
         }),
         {
             name: 'auth-storage', // Name of the key in localStorage
