@@ -12,6 +12,7 @@ export class ServiceBase {
     db: Database
     route: string = 'ServiceBase'
     key: string = "SERVICE_BASE"
+    cols: any = {}
 
     constructor(db: Database) {
         this.db = db
@@ -116,6 +117,28 @@ export class ServiceBase {
         //return code data
         return resultCode
 
+    }
+
+    /**
+     * Map the requested GraphQL selection set to the database columns.
+     * Uses `this.cols` as a dictionary to translate `camelCase` to `snake_case`.
+     * If the field is not present in `this.cols`, it injects it directly.
+     * 
+     * @param selectionSetList List of fields requested in the GraphQL query
+     * @returns Array with the formatted SQL select fields mapping (e.g. ['first_name as "firstName"'])
+     */
+    getFieldsValues(selectionSetList: string[]): string[] {
+        let fields: string[] = []
+
+        selectionSetList.forEach((item: string) => {
+            if (this.cols && this.cols[item]) {
+                fields.push(`${this.cols[item]} as "${item}"`)
+            } else {
+                fields.push(`${item} as "${item}"`)
+            }
+        })
+
+        return fields
     }
 }
 

@@ -1,0 +1,24 @@
+scalar AWSDateTime
+scalar AWSJSON
+
+enum TermsTypeEnum {
+  number
+  string
+  date
+  dateRange
+}
+
+enum OrderEnum {
+  ASC
+  DESC
+}
+
+input SortBy {
+  field: String!
+  order: OrderEnum!
+}
+
+type Query {
+  healthCheck: String
+}
+

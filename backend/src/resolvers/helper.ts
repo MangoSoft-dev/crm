@@ -54,7 +54,7 @@ export const makeResolver = async (template: ITemplateInfo, root?: any, args?: a
     }
 
     const theClass = new entity(db)
-    const res = await theClass[template.requestTemplate.method](args, ctx, root, fields, template.requestTemplate.model)
+    const res = await theClass[template.requestTemplate.method](args, ctx, root, fields)
 
     return res
 }

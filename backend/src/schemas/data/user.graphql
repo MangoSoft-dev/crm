@@ -1,0 +1,66 @@
+type User {
+  id: ID!
+  accountId: ID!
+  parentId: ID
+  googleId: String
+  username: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  phone: String
+  lastActivity: String
+  status: Int!
+  updatedAt: String
+  updatedBy: ID
+}
+
+# Input for user creation
+input CreateUserInput {
+  username: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  phone: String
+  parentId: ID
+}
+
+# Input for user update
+input UpdateUserInput {
+  id: ID!
+  parentId: ID
+  firstName: String
+  lastName: String
+  phone: String
+}
+
+extend type Query {
+  # Search methods (excluding soft-deleted by default)
+  getUserById(id: ID!): User
+  searchUsers(
+    limit: Int
+    offset: Int
+    openSearch: String
+    status: [Int]
+    sortBy: SortBy
+  ): [User]
+}
+
+extend type Mutation {
+  # Create users (initial status: -98)
+  createUser(input: CreateUserInput!): User
+  
+  # Update user (restricted fields only)
+  updateUser(input: UpdateUserInput!): User
+
+  # Soft delete for a single user
+  deleteUser(id: ID!): Boolean
+  
+  # Bulk soft delete users
+  deleteUsers(ids: [ID!]!): Boolean
+  
+  # Resend invitation email and reset password
+  resendInvitation(id: ID!): Boolean
+  
+  # Change password utilizing current and new password
+  changePassword(currentPassword: String!, newPassword: String!): Boolean
+}
