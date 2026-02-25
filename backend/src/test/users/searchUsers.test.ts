@@ -29,8 +29,8 @@ describe('UserService - searchUsers', () => {
             expect.stringContaining('LIMIT $2 OFFSET $3'),
             [1, 10, 0]
         );
-        expect(result.length).toBe(2);
-        expect(result[0].first_name).toBe('John');
+        expect(result.items.length).toBe(2);
+        expect(result.items[0].first_name).toBe('John');
     });
 
     it('should apply openSearch conditions correctly', async () => {

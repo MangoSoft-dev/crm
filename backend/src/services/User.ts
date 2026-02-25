@@ -2,6 +2,7 @@ import ServiceBase, { console } from './ServiceBase';
 import * as crypto from 'crypto';
 import generator from 'generate-password';
 import { Emails } from '../integrations/emails';
+import { Account } from './Account';
 
 export class User extends ServiceBase {
 
@@ -21,6 +22,59 @@ export class User extends ServiceBase {
     };
 
     /**
+     * Helper to cleanly separate requested Account fields from User fields,
+     * ensuring that 'accountId' is fetched so we can resolve the Account later.
+     */
+    private extractAccountSelection(selectionSetList: string[]) {
+        const hasAccount = selectionSetList.some(field => field === 'account' || field.startsWith('account/'));
+        const userFields = selectionSetList.filter(field => field !== 'account' && !field.startsWith('account/'));
+
+        // We need accountId to fetch the account data
+        if (hasAccount && !userFields.includes('accountId')) {
+            userFields.push('accountId');
+        }
+
+        return { hasAccount, userFields };
+    }
+
+    /**
+     * Resolves and populates the 'account' property on the user(s) object.
+     */
+    private async populateAccountData(data: any | any[], hasAccount: boolean) {
+        if (!hasAccount || !data) return data;
+
+        const isArray = Array.isArray(data);
+        const users = isArray ? data : [data];
+        if (users.length === 0) return data;
+
+        const uniqueAccountIds = [...new Set(users.map(u => u.accountId).filter(id => id !== undefined && id !== null))];
+
+        if (uniqueAccountIds.length === 0) return data;
+
+        const accountService = new Account(this.db);
+        const accountsMap: Record<string, any> = {};
+
+        for (const accountId of uniqueAccountIds) {
+            try {
+                const accountData = await accountService.getAccountById(accountId as string);
+                if (accountData) {
+                    accountsMap[String(accountId)] = accountData;
+                }
+            } catch (err) {
+                console.error(this.key, this.route, err);
+            }
+        }
+
+        for (const user of users) {
+            if (user.accountId && accountsMap[String(user.accountId)]) {
+                user.account = accountsMap[String(user.accountId)];
+            }
+        }
+
+        return data;
+    }
+
+    /**
      * Retrieves a user by their unique ID, given they are not soft-deleted.
      * 
      * @param args - Object containing the user `id`.
@@ -32,10 +86,14 @@ export class User extends ServiceBase {
     public async getUserById(args: { id: string }, identity: any, root: any, selectionSetList: string[]) {
         console.log(this.key, this.route, "getUserById", args);
         try {
-            const fields = this.getFieldsValues(selectionSetList).join(', ');
+            const { hasAccount, userFields } = this.extractAccountSelection(selectionSetList);
+            const fields = this.getFieldsValues(userFields).join(', ');
             const query = `SELECT ${fields} FROM "security".users WHERE id = $1 AND deleted = 0`;
             const result = await this.db.query(query, [args.id]);
-            return result.rows[0];
+
+            const user = result.rows[0];
+            if (user) await this.populateAccountData(user, hasAccount);
+            return user;
         } catch (error) {
             console.error(this.key, this.route, error);
             throw error;
@@ -54,9 +112,12 @@ export class User extends ServiceBase {
     public async getUserInfo(args: any, identity: any, root: any, selectionSetList: string[]) {
         console.log(this.key, this.route, "getUserInfo", identity);
         try {
-            const fields = this.getFieldsValues(selectionSetList).join(', ');
+            const { hasAccount, userFields } = this.extractAccountSelection(selectionSetList);
+            const fields = this.getFieldsValues(userFields).join(', ');
             const query = `SELECT ${fields} FROM "security".users WHERE id = $1 AND deleted = 0`;
             const result = await this.db.getFirst(query, [identity.id]);
+
+            if (result) await this.populateAccountData(result, hasAccount);
             return result;
         } catch (error) {
             console.error(this.key, this.route, error);
@@ -76,7 +137,8 @@ export class User extends ServiceBase {
     public async searchUsers(args: { limit?: number, offset?: number, openSearch?: string, status?: number[], sortBy?: any }, identity: any, root: any, selectionSetList: string[]) {
         console.log(this.key, this.route, "searchUsers", args);
         try {
-            const fields = this.getFieldsValues(selectionSetList).join(', ');
+            const { hasAccount, userFields } = this.extractAccountSelection(selectionSetList);
+            const fields = this.getFieldsValues(userFields).join(', ');
             let query = `
                     SELECT 
                         ${fields},
@@ -121,6 +183,9 @@ export class User extends ServiceBase {
             }
 
             const result = await this.db.getArray(query, values);
+
+            await this.populateAccountData(result, hasAccount);
+
             return {
                 items: result,
                 rows: result.length ? result[0].rows : 0
@@ -402,3 +467,5 @@ export class User extends ServiceBase {
         };
     }
 }
+
+export default User;

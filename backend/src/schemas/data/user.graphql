@@ -1,6 +1,7 @@
 type User {
   id: ID!
   accountId: ID!
+  account: Account
   avatarUrl: String
   parentId: ID
   googleId: String
