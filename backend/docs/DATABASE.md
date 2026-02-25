@@ -1,31 +1,50 @@
-# Database Architecture & Usage
+# Database Architecture (AI Guidelines)
 
-This document outlines how the backend interacts with the PostgreSQL database.
+If you are an Artificial Intelligence Model generating code, this document outlines how we interact with PostgreSQL **WITHOUT an ORM**.
 
-## Direct PostgreSQL Connection
-Instead of a heavy ORM like Prisma or TypeORM, this project uses the `pg` driver directly via a custom Singleton class located at `src/core/database.ts`.
+## Direct PostgreSQL Connection 🐘
+Instead of a heavy ORM like Prisma or TypeORM, our project bundles the `pg` driver directly via a native Singleton class injected through inheritance in `ServiceBase` (`this.db`). Therefore, you must purely interact with Prepared Statements in SQL. DO NOT invent ORM methods, use the 3 approved methods dictated below.
 
-### Usage Example
+### Strict Interface (`this.db`)
+
+Inside your Services layer (any class inheriting `ServiceBase`) you can access the DB simply by calling `this.db.<method>`. The framework only has 3 available methods for queries. **Familiarize yourself and use exclusively these**:
+
+#### 1. `db.query(queryText, paramsArray)`
+General use (Select Array, Inserts, or Updates returning multiple data).
 ```typescript
-import { db } from '../core/database';
-
-// Querying multiple rows
-const users = await db.getArray('SELECT * FROM users WHERE role = $1', ['ADMIN']);
-
-// Querying single row
-const user = await db.getFirst('SELECT * FROM users WHERE id = $1', [userId]);
-
-// Executing Inserts/Updates (returns affectedRows or insertId)
-const result = await db.execute(
-    'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
-    ['test@example.com', 'hashed']
+// Insert a record (WATCH OUT for Arrays and PostgreSQL Return Types)
+const result = await this.db.query(
+    'INSERT INTO "schema".users (email, password) VALUES ($1, $2) RETURNING id', 
+    ['test@example.com', 'hash']
 );
+
+// Extracting the returned id requires accessing .rows[]
+const insertedId = result.rows[0].id; // Returns an array of PG Rows.
 ```
 
-## Connection Configuration
-The pool configuration is loaded from `.env`:
-- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD`
-- `DB_MAX` (Max connections in pool)
-- `DB_IDLE_TIMEOUT_MILLIS`
+#### 2. `db.getFirst(queryText, paramsArray)`
+Returns either the First Row (`Object`) or empty (`null`). Excellent for individual lookups.
+```typescript
+// Note the difference of the resolved object. This returns the direct Row, NOT the full PG object.
+const user = await this.db.getFirst(
+    'SELECT * FROM "schema".users WHERE id = $1 AND deleted = 0', 
+    [userId]
+);
 
-*(Note: Add the core entity tables (e.g., Users, Clients) here once the initial SQL schemas are finalized).*
+if (user) console.log(user.email);
+```
+
+#### 3. `db.execute(queryText, paramsArray)`
+For CRUD Fire-and-Forget Operations (Does not return Data, returns Row Count or raw metrics).
+```typescript
+const result = await this.db.execute(
+    'UPDATE "schema".users SET status = 1 WHERE deleted = 0 AND account_id = $1', 
+    [identity.accountId]
+);
+
+// result.rowCount
+```
+
+### Critical PostgreSQL Rules
+- Quote Injection: If you target a Schema other than default, wrap it in double quotes (e.g., `"security".users`).
+- PostgreSQL Arrays: If you use dynamic `ANY` queries, cast it in the prepared statement: `$1::int[]` or `$1::text[]` as necessary.

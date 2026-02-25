@@ -1,106 +1,52 @@
-# GraphQL Architecture & Conventions
+# GraphQL Architecture & AI Guidelines
 
-This document outlines the standard architecture for adding new entities, schemas, resolvers, and services in our GraphQL backend.
+This is the definitive and mandatory architecture guide. **If you are an Artificial Intelligence agent tasked with creating a new Module or Entity**, your execution plan must strictly adhere to the following 3 decoupled components.
+
+For any new Entity (e.g., `Product`), you must create the following 3 files in this order:
 
 ## 1. Schema Definition (`src/schemas/data/<entity>.graphql`)
-
-Every entity should have its own decoupled `.graphql` file, defining its Type, Inputs, and extending the root `Query` and `Mutation`.
-
-```graphql
-# Example Schema Structure
-type EntityName {
-  id: ID!
-  accountId: ID!
-  # Other fields...
-  status: Int!
-  updatedAt: String
-  updatedBy: ID
-}
-
-input CreateEntityInput {
-  # Input fields
-}
-
-extend type Query {
-  getEntityById(id: ID!): EntityName
-  searchEntities(
-    limit: Int
-    offset: Int
-    openSearch: String
-    status: [Int]
-    sortBy: SortBy # Requires common.graphql to be loaded
-  ): [EntityName]
-}
-
-extend type Mutation {
-  createEntity(input: CreateEntityInput!): EntityName
-}
-```
+Define the structure in pure GraphQL. Use GraphQL SDL.
+- Define the main Type (`type Product`).
+- Define the Inputs (`input CreateProductInput`).
+- Extend `Query` for read methods (e.g., `getProductById`, `searchProducts` using `limit`, `offset`, and `sortBy` provided by `common.graphql`).
+- Extend `Mutation` for write methods (e.g., `createProduct`, `updateProduct`, `deleteProduct`).
 
 ## 2. Declarative Resolvers (`src/resolvers/data/<Entity>.ts`)
-
-We do **not** bind resolvers manually. Instead, we export a declarative `requestTemplate` object for each query or mutation. The internal framework will read these exports, bind them to the Schema, and inject the `identity` (current user session data).
+**NEVER** build traditional manual Apollo resolvers binding to the DB.
+Our architecture relies on automated parsing of declarative configurations. For every query/mutation in your schema, export a mapping object:
 
 ```typescript
-// Example: src/resolvers/data/EntityName.ts
-export const createEntity = {
-    field: 'createEntity', // Must match the GraphQL Schema Mutation/Query name
+// Example: src/resolvers/data/Product.ts
+export const getProductById = {
+    field: 'getProductById',     // The exact name in the GraphQL Schema
     requestTemplate: {
-        class: 'EntityName',     // Must match the Service Class name
-        method: 'createEntity',  // Must match the method inside the Service Class
+        class: 'Product',        // The Service class name (Step 3)
+        method: 'getProductById',// The internal method name in the Service
     },
-    type: 'Mutation', // or 'Query'
-}
-
-export const searchEntities = {
-    field: 'searchEntities',
-    requestTemplate: {
-        class: 'EntityName',
-        method: 'searchEntities',
-    },
-    type: 'Query',
+    type: 'Query',               // 'Query' or 'Mutation'
 }
 ```
+*Make sure to export every Mapping and verify that names match perfectly.*
 
 ## 3. Service Layer (`src/services/<Entity>.ts`)
+This is where all business logic and pure SQL live. Create a class that extends `ServiceBase`.
 
-Every entity must have a corresponding class in the `services` folder, inheriting from `ServiceBase`.
-
-### Key Rules:
-1. **Inheritance & Setup**: Extend from `ServiceBase` and set `this.key` and `this.route` in the constructor.
-2. **Parameters**: Every method mapped from resolvers receives two exact arguments:
-   - `args`: Contains the arguments passed from GraphQL (e.g., `args.input`, `args.id`).
-   - `identity`: Represents the currently logged in user context (contains properties like `identity.id` and `identity.account_id`).
-3. **Audit**: Always use `identity.id` for `created_by`, `updated_by`, and `deleted_by`.
-4. **Tenant Isolation**: Always enforce `account_id = identity.account_id` in `WHERE` clauses for `SELECT` and `UPDATE` queries.
-5. **Soft Delete**: Queries must exclude soft-deleted records (`deleted = 0`). Updates/Deletes should apply a soft-delete mechanism instead of dropping the row.
-6. **Logging**: Utilize the custom console logger at the start of operations and in `catch` blocks. (e.g., `console.log(this.key, this.route, "methodName", args)`).
-
-```typescript
-// Example: src/services/EntityName.ts
-import ServiceBase, { console } from './ServiceBase';
-
-export default class EntityName extends ServiceBase {
-    constructor() {
-        super();
-        this.key = "EntityName";
-        this.route = "services/EntityName";
-    }
-
-    public async createEntity(args: { input: any }, identity: any) {
-        console.log(this.key, this.route, "createEntity", args);
-        try {
-            // Execution example
-            const query = `
-                INSERT INTO "schema".entities (account_id, created_by, status, deleted) 
-                VALUES ($1, $2, 1, 0) RETURNING *
-            `;
-            const result = await this.db.query(query, [identity.account_id, identity.id]);
-            return result.rows[0];
-        } catch (error) {
-            console.error(this.key, this.route, error);
-            throw error;
-        }
-    }
-}
-```
+### 🚨 Strict Service Rules (Read carefully!):
+1. **Inheritance**: `import ServiceBase, { console } from './ServiceBase'; export default class Product extends ServiceBase { ... }`
+2. **Constructor**:
+   ```typescript
+   constructor(db?: any) {
+       super(db); // Fundamental for injecting mocks in Testing
+       this.key = 'PRODUCT';
+       this.route = 'services/Product';
+   }
+   ```
+3. **Method Signatures**: Every method mapped by the resolver **ALWAYS** receives the same parameters: `(args: any, identity: any, context?: any, selectionSetList?: string[])`.
+   - `args`: Contains the GraphQL body (e.g., `args.input`).
+   - `identity`: Decrypted user JWT object making the request (`identity.id` and `identity.account_id`).
+   - `selectionSetList`: An array with the requested GraphQL fields (camelCase).
+4. **Multi-Tenant Isolation**: ALL `SELECT`, `UPDATE`, and `DELETE` SQL queries must mandatorily filter by tenant: `WHERE account_id = $n` (where `$n` represents `identity.account_id`).
+5. **Soft Delete**: Always filter `SELECT` queries with `deleted = 0`. When deleting, perform an `UPDATE deleted = 1`.
+6. **Auditing**: Fill `created_by`, `updated_by`, and `deleted_by` using `identity.id`.
+7. **Dynamic SQL**: If you need to perform dynamic selects mapped from GraphQL, use `this.getFieldsValues(selectionSetList)` mapping it to Postgres snake_case.
+8. **Mandatory Logging**: Always implement a `console.log(this.key, this.route, "methodName", args)` at the start and a `catch` block that traps and prints `console.error()`.
