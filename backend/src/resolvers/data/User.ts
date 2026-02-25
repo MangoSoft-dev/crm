@@ -7,6 +7,15 @@ export const getUserById = {
     type: 'Query',
 }
 
+export const getUserInfo = {
+    field: 'getUserInfo',
+    requestTemplate: {
+        class: 'User',
+        method: 'getUserInfo',
+    },
+    type: 'Query',
+}
+
 export const searchUsers = {
     field: 'searchUsers',
     requestTemplate: {

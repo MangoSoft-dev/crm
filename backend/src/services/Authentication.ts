@@ -18,12 +18,13 @@ export class Authentication extends ServiceBase {
     key = 'AUTH'
 
     /**
-     * Method to create credentials for user in all methods of login
-     * @param user 
-     * @param password 
-     * @param ip 
-     * @param validatePassword 
-     * @returns 
+     * Internal method to create authentication credentials (JWT token and refresh token) for a user after successful validation.
+     * 
+     * @param user - The user record from the database.
+     * @param password - The password provided during the login attempt.
+     * @param ip - The IP address of the user making the request.
+     * @param validatePassword - If true, the method will validate the password and check login attempts/status. Defaults to true.
+     * @returns An object containing the user `id`, the main `token`, and the `refreshToken`.
      */
     async createCredentials(user: any, password: string, ip: string, validatePassword = true) {
         console.log(this.key, this.route, "createCredentials", user, password, ip, validatePassword)
@@ -127,9 +128,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * method to login with username and password
-     * @param args 
-     * @returns 
+     * Standard login method using a username (or email) and password. Handles user impersonation and credentials creation.
+     * 
+     * @param args - Object containing `username` and `password`.
+     * @param identity - The user identity object containing the `ip` address.
+     * @returns A promise resolving to the user credentials (tokens).
      */
     async login(args: any, identity: any) {
         try {
@@ -206,9 +209,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to login with otp code
-     * @param args 
-     * @returns 
+     * Login method using a One-Time Password (OTP) code instead of a standard password.
+     * 
+     * @param args - Object containing the security code `id` and the `code` itself.
+     * @param identity - The user identity object containing the `ip` address.
+     * @returns A promise resolving to the user credentials (tokens).
      */
     async loginOTP(args: any, identity: any) {
         const { id, code } = args;
@@ -248,9 +253,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to resend otp code
-     * @param args 
-     * @returns 
+     * Method to resend a One-Time Password (OTP) to the user's registered email.
+     * 
+     * @param args - Object containing the `id` representing the OTP request session, and an optional `code` type (defaults to 'LOGIN_OTP').
+     * @param identity - The identity object of the requesting user.
+     * @returns A promise resolving to a standard response containing the new request GUID and masked email.
      */
     async loginOTPResendCode(args: any, identity: any) {
 
@@ -293,9 +300,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to login with google
-     * @param args 
-     * @returns 
+     * Login method using Google OAuth callback tokens.
+     * 
+     * @param args - Object containing the Google OAuth `token`.
+     * @param identity - The user identity object containing the `ip` address.
+     * @returns A promise resolving to the user credentials (tokens).
      */
     async loginGoogle(args: any, identity: any) {
         try {
@@ -354,9 +363,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to login with facebook
-     * @param args 
-     * @returns 
+     * Login method using Facebook OAuth access tokens.
+     * 
+     * @param args - Object containing the Facebook `token` and the associated user `id`.
+     * @param identity - The user identity object.
+     * @returns A promise resolving to the user credentials (tokens).
      */
     async loginFacebook(args: any, identity: any) {
         try {
@@ -415,9 +426,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to recover password
-     * @param args 
-     * @returns 
+     * Initiates the password recovery process by generating a temporary password and dispatching an email to the user.
+     * 
+     * @param args - Object containing the user's `email`.
+     * @param identity - The user identity object making the request.
+     * @returns A promise resolving to a standard response object with masked email info.
      */
     async recoveryPassword(args: any, identity: any) {
 
@@ -474,9 +487,10 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to force change password
-     * @param args 
-     * @returns 
+     * Forces a password change using a security code. Typically used when a user's status is set to require a forced change (e.g., status = -98).
+     * 
+     * @param args - Object containing the security `key`, the `newPassword`, and the OTP `code`.
+     * @returns A promise resolving to a success message response.
      */
     async forceChangePassword(args: any) {
         const { key, newPassword, code } = args
@@ -527,9 +541,11 @@ export class Authentication extends ServiceBase {
     }
 
     /**
-     * Method to refresh token
-     * @param args 
-     * @returns 
+     * Refreshes the user authentication session by validating a refresh token and issuing new credentials.
+     * 
+     * @param args - Object containing the `token` (the refresh JWT).
+     * @param identity - The user identity object containing the `ip` address.
+     * @returns A promise resolving to new user credentials (tokens).
      */
     async refreshToken(args: any, identity: any) {
         try {

@@ -36,6 +36,10 @@ input UpdateUserInput {
 extend type Query {
   # Search methods (excluding soft-deleted by default)
   getUserById(id: ID!): User
+
+  # get info for user logged
+  getUserInfo: User
+
   searchUsers(
     limit: Int
     offset: Int

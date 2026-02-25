@@ -15,12 +15,13 @@ The `src/` directory is strictly divided by responsibilities. You must respect t
   - **Key Location:** New services belong in `src/services/`.
 - `test/`: Unit tests in Jest. **MUST be separated per method file and use Injection of Database Mocks.**
 
-## ✍🏻 Naming Conventions
+## ✍🏻 Naming & Documentation Conventions
 - **Files/Folders**: Use `camelCase` or `PascalCase` when exporting classes.
 - **GraphQL Schemas**: Lowercase `.graphql` extensions (e.g., `user.graphql`).
 - **Variables & Functions**: `camelCase`.
 - **Base Classes/Services**: `PascalCase` (e.g., `Database`, `User`).
 - **Constants**: `UPPER_SNAKE_CASE` (e.g., `SECRET_REFRESH`).
+- **JSDoc Formatting**: EVERY method in the service layer must have a JSDoc block (`/** ... */`) documenting its purpose, `@param`s, and `@returns`. Do not skip this; it's a critical AI guideline rule for maintainability.
 
 ## 🛑 Error Handling
 **NEVER** send explicit native PostgreSQL errors to the client. Throw `GraphQLError` inside your services when a request is invalid or unauthorized so that the server processes it cleanly.

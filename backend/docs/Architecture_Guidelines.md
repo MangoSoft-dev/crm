@@ -50,3 +50,4 @@ This is where all business logic and pure SQL live. Create a class that extends 
 6. **Auditing**: Fill `created_by`, `updated_by`, and `deleted_by` using `identity.id`.
 7. **Dynamic SQL**: If you need to perform dynamic selects mapped from GraphQL, use `this.getFieldsValues(selectionSetList)` mapping it to Postgres snake_case.
 8. **Mandatory Logging**: Always implement a `console.log(this.key, this.route, "methodName", args)` at the start and a `catch` block that traps and prints `console.error()`.
+9. **Mandatory JSDoc Comments**: EVERY method created within a service must be preceded by a comprehensive JSDoc comment explaining its functionality, the parameters it takes (especially differentiating `args` and `identity`), and the returned value/promise.

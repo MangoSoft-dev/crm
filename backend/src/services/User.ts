@@ -1,6 +1,7 @@
 import ServiceBase, { console } from './ServiceBase';
 import * as crypto from 'crypto';
 import generator from 'generate-password';
+import { Emails } from '../integrations/emails';
 
 export default class User extends ServiceBase {
 
@@ -18,6 +19,15 @@ export default class User extends ServiceBase {
         updatedBy: 'updated_by',
     };
 
+    /**
+     * Retrieves a user by their unique ID, given they are not soft-deleted.
+     * 
+     * @param args - Object containing the user `id`.
+     * @param identity - The user identity object provided by the authentication context.
+     * @param root - The root of the active GraphQL query.
+     * @param selectionSetList - The list of fields requested in the GraphQL query.
+     * @returns A promise resolving to the user record, or throws an error.
+     */
     public async getUserById(args: { id: string }, identity: any, root: any, selectionSetList: string[]) {
         console.log(this.key, this.route, "getUserById", args);
         try {
@@ -31,6 +41,37 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Retrieves the details of the currently authenticated user based on their identity.
+     * 
+     * @param args - Expected arguments (usually empty for this specific operation).
+     * @param identity - The user identity object provided by the authentication context containing the user's ID.
+     * @param root - The root of the active GraphQL query.
+     * @param selectionSetList - The list of fields requested in the GraphQL query.
+     * @returns A promise that resolves to the user record, or throws an error.
+     */
+    public async getUserInfo(args: any, identity: any, root: any, selectionSetList: string[]) {
+        console.log(this.key, this.route, "getUserInfo", identity);
+        try {
+            const fields = this.getFieldsValues(selectionSetList).join(', ');
+            const query = `SELECT ${fields} FROM "security".users WHERE id = $1 AND deleted = 0`;
+            const result = await this.db.query(query, [identity.id]);
+            return result.rows[0];
+        } catch (error) {
+            console.error(this.key, this.route, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Searches for users within the same tenant/account, allowing pagination, filtering, and sorting.
+     * 
+     * @param args - Search parameters including `limit`, `offset`, `openSearch` (text search), `status`, and `sortBy`.
+     * @param identity - The user identity object containing the tenant's `account_id`.
+     * @param root - The root of the active GraphQL query.
+     * @param selectionSetList - The list of fields requested in the GraphQL query.
+     * @returns A promise resolving to an array of matching user records.
+     */
     public async searchUsers(args: { limit?: number, offset?: number, openSearch?: string, status?: number[], sortBy?: any }, identity: any, root: any, selectionSetList: string[]) {
         console.log(this.key, this.route, "searchUsers", args);
         try {
@@ -77,6 +118,13 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Creates a new user in the system, assigns a temporary auto-generated password, and emails them their credentials.
+     * 
+     * @param args - Object containing the `input` payload with the user's details.
+     * @param identity - The user identity object creating the user.
+     * @returns A promise resolving to the newly created user record mapped to the GraphQL schema.
+     */
     public async createUser(args: { input: any }, identity: any) {
         console.log(this.key, this.route, "createUser", args);
         try {
@@ -117,6 +165,8 @@ export default class User extends ServiceBase {
             const result = await this.db.query(query, values);
 
             // TODO: Call email service implementation to send the 'tempPassword' to the user here.
+            await Emails.getProvider().sendEmail("info@mangosoft.dev", input.email, "Wellcome", `<h1>Wellcome</h1><p>Your password is: ${tempPassword}</p>`)
+
 
             return this.mapUser(result.rows[0]);
         } catch (error) {
@@ -125,6 +175,13 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Updates an existing user's allowed dynamic fields (parentId, firstName, lastName, phone).
+     * 
+     * @param args - Object containing the `input` payload with the fields to update and the user's `id`.
+     * @param identity - The user identity object performing the update.
+     * @returns A promise resolving to the updated user record mapped to the GraphQL schema.
+     */
     public async updateUser(args: { input: any }, identity: any) {
         console.log(this.key, this.route, "updateUser", args);
         try {
@@ -173,6 +230,13 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Soft deletes a user by setting their `deleted` flag to 1.
+     * 
+     * @param args - Object containing the user `id` to delete.
+     * @param identity - The user identity object performing the deletion.
+     * @returns A promise resolving to a boolean indicating success.
+     */
     public async deleteUser(args: { id: string }, identity: any) {
         console.log(this.key, this.route, "deleteUser", args);
         try {
@@ -189,6 +253,13 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Bulk soft deletes an array of users by setting their `deleted` flags to 1.
+     * 
+     * @param args - Object containing an array of `ids` to delete.
+     * @param identity - The user identity object performing the deletion.
+     * @returns A promise resolving to a boolean indicating success.
+     */
     public async deleteUsers(args: { ids: string[] }, identity: any) {
         console.log(this.key, this.route, "deleteUsers", args);
         try {
@@ -209,6 +280,13 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Resends an invitation to a user by auto-generating a new password and dispatching an email to them.
+     * 
+     * @param args - Object containing the user `id` to resend the invitation to.
+     * @param identity - The user identity object.
+     * @returns A promise resolving to a boolean indicating success.
+     */
     public async resendInvitation(args: { id: string }, identity: any) {
         console.log(this.key, this.route, "resendInvitation", args);
         try {
@@ -242,6 +320,14 @@ export default class User extends ServiceBase {
         }
     }
 
+    /**
+     * Allows a user to change their own password, given they know their current password.
+     * Will also activate the user's status if they were previously forced to change it.
+     * 
+     * @param args - Object containing `currentPassword` and `newPassword`.
+     * @param identity - The user identity object.
+     * @returns A promise resolving to a boolean indicating the password was changed successfully.
+     */
     public async changePassword(args: { currentPassword: string, newPassword: string }, identity: any) {
         console.log(this.key, this.route, "changePassword", identity.id);
         try {
@@ -279,7 +365,12 @@ export default class User extends ServiceBase {
         }
     }
 
-    // Standard structural mapping from PG to GraphQL entity schema output
+    /**
+     * Standard structural mapping from PG database row to the GraphQL entity schema output format.
+     * 
+     * @param row - The raw database row representing a user.
+     * @returns An object mapped to match the User GraphQL type.
+     */
     private mapUser(row: any) {
         return {
             id: row.id,

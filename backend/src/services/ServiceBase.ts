@@ -19,12 +19,14 @@ export class ServiceBase {
     }
 
     /**
-     * Method to create a security code
-     * @param userId user linked to the code
-     * @param entity entity related to the code or module
-     * @param entityId id related to the entity
-     * @param customtime live on minutes
-     * @returns 
+     * Generates and stores a unique 6-digit security code (OTP) linked to a specific user and entity action.
+     * Dispatches an email to the user with the generated code.
+     * 
+     * @param userId - The ID of the user requesting the code.
+     * @param entity - The module or action context (e.g., 'LOGIN_OTP', 'FORCE_CHANGE_PASSWORD').
+     * @param entityId - A unique identifier linking the code to the specific request iteration.
+     * @param customtime - The validity duration of the code in minutes. Defaults to 2 minutes.
+     * @returns A promise resolving to the generated 6-digit `code` as a string.
      */
     async createSecurityCode(userId: number, entity: string, entityId: string, customtime = 2) {
 
@@ -66,12 +68,15 @@ export class ServiceBase {
     }
 
     /**
-     * Validate a security code
-     * @param entity entity related to the code or module
-     * @param entityId id related to the entity
-     * @param code code to validate
-     * @param userId user linked to the code
-     * @returns 
+     * Validates an existing security code (OTP) against the database records.
+     * Verifies that the code matches the entity, hasn't expired, and is currently un-used (status = 0).
+     * If validated successfully, marks the code's status as 1 (used).
+     * 
+     * @param entity - The module or action context to validate against.
+     * @param entityId - The unique identifier linking the code to the specific request iteration.
+     * @param code - The 6-digit code provided by the user to be validated.
+     * @param userId - Optional. The ID of the user the code belongs to, adding a layer of validation if provided.
+     * @returns A promise resolving to the code record object if valid, or `null` if invalid, expired, or already used.
      */
     async validateSecurityCode(entity: string, entityId: string, code: string, userId?: Number) {
 
