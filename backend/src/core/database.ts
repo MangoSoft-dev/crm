@@ -91,6 +91,23 @@ export class Database {
         return result?.rows
     }
 
+    /**
+     * Prepara los valores de un objeto para una consulta SQL parametrizada.
+     * @param values Objeto con los pares clave-valor a insertar
+     * @returns Objeto con columnas, placeholders y valores procesados
+     */
+    public getSetValues(values: any): { columns: string; placeholders: string; queryValues: any[] } {
+        const columns = Object.keys(values)
+            .map(col => `"${col}"`)
+            .join(', ');
+        const placeholders = Object.keys(values)
+            .map((_, i) => `$${i + 1}`)
+            .join(', ');
+        const queryValues = Object.values(values);
+
+        return { columns, placeholders, queryValues };
+    }
+
     public async close(): Promise<void> {
         await this.pool.end();
     }

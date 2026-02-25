@@ -446,7 +446,7 @@ export class Authentication extends ServiceBase {
                     UPDATE 
                         security.users
                     SET 
-                        password = md5($2),
+                        password = md5($1::text),
                         status = -98
                     WHERE 
                         id = $2
@@ -456,7 +456,8 @@ export class Authentication extends ServiceBase {
             console.log(this.key, this.route, "newPassword", newPassword)
             //TODO: translate email or use template
             //send email
-            await Emails.getProvider().registerEmail(result.id, "RECOVERY_PASSWORD", result.id, result.email, "Change Password", `A temporary password has been created: ${newPassword}`)
+            //await Emails.getProvider().registerEmail(result.id, "RECOVERY_PASSWORD", result.id, result.email, "Change Password", `A temporary password has been created: ${newPassword}`)
+            await Emails.getProvider().sendEmail('noreply@mangosoft.dev', result.email, "Change Password", `A temporary password has been created: ${newPassword}`)
 
             const emailArray = result.email.split('@')
             return {

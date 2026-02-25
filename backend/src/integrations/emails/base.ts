@@ -16,7 +16,7 @@ export class EmailProviderBase {
     async registerEmail(userId: Number, entity: string, entityId: string, to: string, subject: string, body: string, accountId?: Number, cc?: string) {
         const date = moment().toISOString();
         console.log("EMAIL", "emails/base/registerEmail", "registerEmail", { userId, entity, entityId, to, subject, body })
-        
+
         let values = {
             from: 'info@genesis.info',
             account_id: accountId,
@@ -31,11 +31,12 @@ export class EmailProviderBase {
             created_at: date
         }
 
+        const setValues = db.getSetValues(values)
 
         await db.execute(`
-            INSERT INTO security.emails
-            SET $1
-        `, [values])
+            INSERT INTO security.emails (${setValues.columns})
+            VALUES (${setValues.placeholders})
+        `, setValues.queryValues)
     }
 
 }

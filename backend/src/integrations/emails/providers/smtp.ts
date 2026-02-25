@@ -17,13 +17,13 @@ export class Smtp extends EmailProviderBase {
 
         const msg = {
             to: to,
-            from: CONFIG.SMTP_VALUES.auth.user || from,
+            from: "info@mangosoft.dev",//|| from,
             subject: subject,
             html: body,
         }
 
-        await this.transporter.sendMail(msg);
-        return 'Smtp'
+        const info = await this.transporter.sendMail(msg);
+        return info
     }
 
 }
