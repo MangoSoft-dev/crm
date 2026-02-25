@@ -1,6 +1,7 @@
 type User {
   id: ID!
   accountId: ID!
+  avatarUrl: String
   parentId: ID
   googleId: String
   username: String!
@@ -33,7 +34,13 @@ input UpdateUserInput {
   phone: String
 }
 
-extend type Query {
+# Result for search methods
+type UsersResult {
+  items: [User]
+  rows: Int
+}
+
+type Query {
   # Search methods (excluding soft-deleted by default)
   getUserById(id: ID!): User
 
@@ -46,10 +53,10 @@ extend type Query {
     openSearch: String
     status: [Int]
     sortBy: SortBy
-  ): [User]
+  ): UsersResult
 }
 
-extend type Mutation {
+type Mutation {
   # Create users (initial status: -98)
   createUser(input: CreateUserInput!): User
   

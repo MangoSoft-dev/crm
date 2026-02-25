@@ -18,7 +18,7 @@ const Private = () => {
     const types = typeFiles.map(file => fs.readFileSync(path.join(typesDir, file), 'utf-8'));
 
     //Resolvers
-    const resolversDir = path.resolve(__dirname, 'resolvers');
+    const resolversDir = path.resolve(__dirname, '../../resolvers/data');
     const resolverFiles = fs.readdirSync(resolversDir);
     const resolvers: any = []
     resolverFiles.forEach(file => {

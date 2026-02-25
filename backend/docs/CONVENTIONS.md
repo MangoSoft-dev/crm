@@ -19,7 +19,7 @@ The `src/` directory is strictly divided by responsibilities. You must respect t
 - **Files/Folders**: Use `camelCase` or `PascalCase` when exporting classes.
 - **GraphQL Schemas**: Lowercase `.graphql` extensions (e.g., `user.graphql`).
 - **Variables & Functions**: `camelCase`.
-- **Base Classes/Services**: `PascalCase` (e.g., `Database`, `User`).
+- **Base Classes/Services**: `PascalCase` and exported definitively as Named Exports (`export class User`), and they MUST be registered inside `src/services/index.ts`.
 - **Constants**: `UPPER_SNAKE_CASE` (e.g., `SECRET_REFRESH`).
 - **JSDoc Formatting**: EVERY method in the service layer must have a JSDoc block (`/** ... */`) documenting its purpose, `@param`s, and `@returns`. Do not skip this; it's a critical AI guideline rule for maintainability.
 

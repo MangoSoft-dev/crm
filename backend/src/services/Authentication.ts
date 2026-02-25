@@ -94,7 +94,8 @@ export class Authentication extends ServiceBase {
                 id: user.id,
                 userId: user.id,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                accountId: user.account_id
             },
             SECRET,
             { expiresIn: LOGIN_CONFIG.expiresIn }
@@ -171,6 +172,7 @@ export class Authentication extends ServiceBase {
                     `
                         SELECT 
                             id,
+                            account_id,
                             password,
                             username,
                             email,
@@ -233,7 +235,8 @@ export class Authentication extends ServiceBase {
                         username,
                         email,
                         ip_restricted,
-                        status
+                        status,
+                        account_id
                     FROM 
                         security.users 
                     WHERE 
@@ -270,7 +273,8 @@ export class Authentication extends ServiceBase {
                 SELECT 
                     sc.id,
                     sc.user_id,
-                    u.email 
+                    u.email,
+                    u.account_id 
                 FROM 
                     security.security_codes sc 
                     INNER JOIN security.users u ON u.id = sc.user_id
@@ -336,7 +340,8 @@ export class Authentication extends ServiceBase {
                             ip_restricted,
                             last_ip_connected,
                             status,
-                            validate_otp
+                            validate_otp,
+                            account_id
                         FROM 
                             security.users 
                         WHERE 
@@ -391,7 +396,8 @@ export class Authentication extends ServiceBase {
                             last_login_attemps,
                             last_ip_connected,
                             last_activity,
-                            validate_otp
+                            validate_otp,
+                            account_id  
                         FROM 
                             security.users 
                         WHERE 
@@ -443,7 +449,8 @@ export class Authentication extends ServiceBase {
                 SELECT
                     id,
                     username,
-                    email
+                    email,
+                    account_id
                 FROM
                     security.users 
                 WHERE 
@@ -505,7 +512,8 @@ export class Authentication extends ServiceBase {
                 `
                     SELECT
                         id,
-                        email
+                        email,
+                        account_id
                     FROM
                         security.users 
                     WHERE 
@@ -567,7 +575,8 @@ export class Authentication extends ServiceBase {
                             login_attemps,
                             ip_restricted,
                             last_ip_connected,
-                            status
+                            status,
+                            account_id  
                         FROM 
                             security.users 
                         WHERE 

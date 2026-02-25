@@ -12,7 +12,7 @@ import helmet from 'helmet';
 import { PORT } from './core/constants'
 // import upload from './upload';
 import authConfig from './resolvers/auth'
-// import dataConfig from './graphql/data'
+import dataConfig from './resolvers/data'
 
 import { jwtValidation, headerValidation, jwtValidationFiles } from './core/security/authStrategy'
 // import db from '../src/db'
@@ -77,8 +77,8 @@ const startServer = async () => {
         }),
     );
 
-    // const dataServer = dataConfig()
-    // await dataServer.start();
+    const dataServer = dataConfig()
+    await dataServer.start();
 
 
     // //Servidor de data
@@ -104,10 +104,9 @@ const startServer = async () => {
                 next()
             })(req, res, next)
         },
-        //expressMiddleware(privateServer),
-        // expressMiddleware(dataServer, {
-        //     context: async ({ req }: any) => ({ ...req.ctx })
-        // })
+        expressMiddleware(dataServer, {
+            context: async ({ req }: any) => ({ ...req.ctx })
+        })
     );
 
     // app.put('/api/upload',

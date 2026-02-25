@@ -7,7 +7,7 @@ Instead of a heavy ORM like Prisma or TypeORM, our project bundles the `pg` driv
 
 ### Strict Interface (`this.db`)
 
-Inside your Services layer (any class inheriting `ServiceBase`) you can access the DB simply by calling `this.db.<method>`. The framework only has 3 available methods for queries. **Familiarize yourself and use exclusively these**:
+Inside your Services layer (any class inheriting `ServiceBase`) you can access the DB simply by calling `this.db.<method>`. The framework only has 4 available methods for queries. **Familiarize yourself and use exclusively these**:
 
 #### 1. `db.query(queryText, paramsArray)`
 General use (Select Array, Inserts, or Updates returning multiple data).
@@ -34,7 +34,19 @@ const user = await this.db.getFirst(
 if (user) console.log(user.email);
 ```
 
-#### 3. `db.execute(queryText, paramsArray)`
+#### 3. `db.getArray(queryText, paramsArray)`
+Returns an Array of Rows strictly, avoiding the metadata wrapper. Ideal for lists/searches.
+```typescript
+const products = await this.db.getArray(
+    'SELECT * FROM "schema".products WHERE account_id = $1', 
+    [identity.accountId]
+);
+
+// Returns an empty array `[]` if no results, NEVER null.
+return { items: products, rows: products.length ? products[0].rows : 0 };
+```
+
+#### 4. `db.execute(queryText, paramsArray)`
 For CRUD Fire-and-Forget Operations (Does not return Data, returns Row Count or raw metrics).
 ```typescript
 const result = await this.db.execute(

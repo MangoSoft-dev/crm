@@ -1,0 +1,7 @@
+type Account {
+  id: ID!
+  logoUrl: String
+  code: String
+  name: String!
+  status: Int!
+}

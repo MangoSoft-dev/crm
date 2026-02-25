@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import generator from 'generate-password';
 import { Emails } from '../integrations/emails';
 
-export default class User extends ServiceBase {
+export class User extends ServiceBase {
 
     key = "User";
     route = "services/User";
@@ -11,6 +11,7 @@ export default class User extends ServiceBase {
     cols: any = {
         accountId: 'account_id',
         parentId: 'parent_id',
+        avatarUrl: `(SELECT url FROM security.files WHERE entity = 'UserAvatar' AND entity_id = cast(id as varchar) AND deleted = 0 LIMIT 1)`, //avatar url is in the files table
         googleId: 'google_id',
         firstName: 'first_name',
         lastName: 'last_name',
@@ -55,8 +56,8 @@ export default class User extends ServiceBase {
         try {
             const fields = this.getFieldsValues(selectionSetList).join(', ');
             const query = `SELECT ${fields} FROM "security".users WHERE id = $1 AND deleted = 0`;
-            const result = await this.db.query(query, [identity.id]);
-            return result.rows[0];
+            const result = await this.db.getFirst(query, [identity.id]);
+            return result;
         } catch (error) {
             console.error(this.key, this.route, error);
             throw error;
@@ -76,8 +77,17 @@ export default class User extends ServiceBase {
         console.log(this.key, this.route, "searchUsers", args);
         try {
             const fields = this.getFieldsValues(selectionSetList).join(', ');
-            let query = `SELECT ${fields} FROM "security".users WHERE deleted = 0 AND account_id = $1`;
-            const values: any[] = [identity.account_id];
+            let query = `
+                    SELECT 
+                        ${fields},
+                        COUNT(*) OVER() AS rows
+                    FROM 
+                        "security".users 
+                    WHERE 
+                        deleted = 0 
+                        AND account_id = $1
+                `;
+            const values: any[] = [identity.accountId];
             let paramIndex = 2;
 
             if (args.openSearch) {
@@ -110,8 +120,11 @@ export default class User extends ServiceBase {
                 values.push(args.offset);
             }
 
-            const result = await this.db.query(query, values);
-            return result.rows;
+            const result = await this.db.getArray(query, values);
+            return {
+                items: result,
+                rows: result.length ? result[0].rows : 0
+            }
         } catch (error) {
             console.error(this.key, this.route, error);
             throw error;
@@ -132,7 +145,7 @@ export default class User extends ServiceBase {
 
             // Enforce constraints uniquely based on email or username
             const checkQuery = `SELECT id FROM "security".users WHERE (email = $1 OR username = $2) AND deleted = 0 AND account_id = $3`;
-            const checkResult = await this.db.query(checkQuery, [input.email, input.username, identity.account_id]);
+            const checkResult = await this.db.query(checkQuery, [input.email, input.username, identity.accountId]);
             if (checkResult.rows.length > 0) {
                 throw new Error("Email or Username already exists");
             }
@@ -151,7 +164,7 @@ export default class User extends ServiceBase {
                 ) RETURNING *
             `;
             const values = [
-                identity.account_id,
+                identity.accountId,
                 input.parentId || null,
                 input.username,
                 passwordHash,
@@ -216,7 +229,7 @@ export default class User extends ServiceBase {
             }
 
             query += ` WHERE id = $${paramIndex} AND deleted = 0 AND account_id = $${paramIndex + 1} RETURNING *`;
-            values.push(id, identity.account_id);
+            values.push(id, identity.accountId);
 
             const result = await this.db.query(query, values);
             if (result.rows.length === 0) {
@@ -245,7 +258,7 @@ export default class User extends ServiceBase {
                 SET deleted = 1, deleted_by = $1, deleted_at = NOW() 
                 WHERE id = $2 AND account_id = $3
             `;
-            const result = await this.db.query(query, [identity.id, args.id, identity.account_id]);
+            const result = await this.db.query(query, [identity.id, args.id, identity.accountId]);
             return result.rowCount ? result.rowCount > 0 : false;
         } catch (error) {
             console.error(this.key, this.route, error);
@@ -272,7 +285,7 @@ export default class User extends ServiceBase {
                 SET deleted = 1, deleted_by = $1, deleted_at = NOW() 
                 WHERE id = ANY($2::int[]) AND account_id = $3
             `;
-            const result = await this.db.query(query, [identity.id, args.ids, identity.account_id]);
+            const result = await this.db.query(query, [identity.id, args.ids, identity.accountId]);
             return result.rowCount ? result.rowCount > 0 : false;
         } catch (error) {
             console.error(this.key, this.route, error);
@@ -292,7 +305,7 @@ export default class User extends ServiceBase {
         try {
             // Check if user exists and is not deleted
             const checkQuery = `SELECT id, email, username FROM "security".users WHERE id = $1 AND deleted = 0 AND account_id = $2`;
-            const checkResult = await this.db.query(checkQuery, [args.id, identity.account_id]);
+            const checkResult = await this.db.query(checkQuery, [args.id, identity.accountId]);
             if (checkResult.rows.length === 0) {
                 throw new Error("User not found");
             }
