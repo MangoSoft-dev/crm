@@ -1,0 +1,41 @@
+{
+    "dashboard": {
+        "welcome": "Bienvenido, {{user}}",
+        "subtitle": "Panel de Control General de E-Services IngenioSoft",
+        "kpi": {
+            "quotes": "Total Cotizaciones",
+            "invoices": "Facturas Pendientes",
+            "documents": "Documentos Recientes"
+        },
+        "activity": {
+            "title": "Resumen de Actividad",
+            "viewAll": "Ver todo",
+            "columns": {
+                "description": "DESCRIPCIÓN",
+                "date": "FECHA",
+                "status": "ESTADO",
+                "amount": "MONTO"
+            },
+            "types": {
+                "quote": "Cotización",
+                "invoice": "Factura"
+            },
+            "statuses": {
+                "approved": "APROBADO",
+                "pending": "PENDIENTE",
+                "sent": "ENVIADO"
+            },
+            "client": "Cliente:"
+        },
+        "actions": {
+            "newQuote": {
+                "title": "Nueva Cotización",
+                "description": "Genere un nuevo presupuesto para sus clientes rápidamente."
+            },
+            "uploadDocs": {
+                "title": "Cargar Documentos",
+                "description": "Suba archivos PDF o imágenes al repositorio del módulo."
+            }
+        }
+    }
+}

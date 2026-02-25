@@ -1,0 +1,41 @@
+{
+    "dashboard": {
+        "welcome": "Welcome, {{user}}",
+        "subtitle": "General Control Panel of E-Services IngenioSoft",
+        "kpi": {
+            "quotes": "Total Quotes",
+            "invoices": "Pending Invoices",
+            "documents": "Recent Documents"
+        },
+        "activity": {
+            "title": "Activity Summary",
+            "viewAll": "View all",
+            "columns": {
+                "description": "DESCRIPTION",
+                "date": "DATE",
+                "status": "STATUS",
+                "amount": "AMOUNT"
+            },
+            "types": {
+                "quote": "Quote",
+                "invoice": "Invoice"
+            },
+            "statuses": {
+                "approved": "APPROVED",
+                "pending": "PENDING",
+                "sent": "SENT"
+            },
+            "client": "Client:"
+        },
+        "actions": {
+            "newQuote": {
+                "title": "New Quote",
+                "description": "Generate a new estimate for your clients quickly."
+            },
+            "uploadDocs": {
+                "title": "Upload Documents",
+                "description": "Upload PDF files or images to the module's repository."
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "layout": {
+        "sidebar": {
+            "quotes": "Quotes Module",
+            "billing": "Billing Module",
+            "docs": "Documentation Module",
+            "config": "CONFIGURATION",
+            "settings": "Settings",
+            "support": "Support",
+            "logout": "Log Out"
+        },
+        "header": {
+            "searchPlaceholder": "Search quotes, invoices...",
+            "role": "Administrator"
+        }
+    }
+}

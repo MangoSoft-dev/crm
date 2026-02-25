@@ -1,0 +1,17 @@
+.dashboard-main-layout {
+    min-height: 100vh;
+
+    .dashboard-main-container {
+        margin-left: 280px; // Sider width
+        background-color: #f8f9fa; // Very soft gray
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dashboard-content-area {
+        padding: 32px 40px;
+        flex: 1;
+        overflow-y: auto;
+    }
+}

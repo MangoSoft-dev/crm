@@ -113,7 +113,7 @@ export class Authentication extends ServiceBase {
             SET 
                 last_activity = $1, 
                 last_ip_connected = $2, 
-                login_attemps = 0, npm s
+                login_attemps = 0,
                 last_login_attemps = $3, 
                 validate_otp = 0 
             WHERE 

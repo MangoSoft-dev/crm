@@ -1,0 +1,38 @@
+// ==========================================
+// 🛠️ Reusable Global Mixins
+// ==========================================
+
+// Flex Center
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Flex Between
+@mixin flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// Flex Column
+@mixin flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+// Text truncate (1 line with '...')
+@mixin text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Base Card Structure
+@mixin card-base {
+    background-color: $white;
+    border-radius: $border-radius-lg;
+    border: 1px solid $border-color-dark;
+    box-shadow: $shadow-sm;
+}

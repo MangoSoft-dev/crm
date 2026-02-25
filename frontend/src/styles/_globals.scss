@@ -1,0 +1,79 @@
+// ==========================================
+// 🌍 Global Styles and Overrides
+// ==========================================
+
+@use 'variables' as *;
+
+body {
+    font-family: $font-family-base;
+    color: $text-primary;
+    background-color: $bg-main;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// Quick utilities (Helper classes)
+.text-primary {
+    color: $primary-color;
+}
+
+.text-secondary {
+    color: $text-secondary;
+}
+
+.text-muted {
+    color: $text-tertiary;
+}
+
+.bg-white {
+    background-color: $white;
+}
+
+.bg-light {
+    background-color: $bg-main;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.p-0 {
+    padding: 0 !important;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.h-100 {
+    height: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: $text-disabled;
+}

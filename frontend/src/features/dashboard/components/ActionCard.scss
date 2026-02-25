@@ -1,0 +1,96 @@
+.action-card {
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+
+    &:hover {
+        transform: translateY(-4px);
+    }
+
+    .ant-card-body {
+        padding: 32px 24px;
+        height: 100%;
+    }
+
+    .action-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        height: 100%;
+
+        .action-text-area {
+            display: flex;
+            flex-direction: column;
+
+            .action-title {
+                margin: 0 0 8px 0 !important;
+                font-weight: 700;
+            }
+
+            .action-description {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+        }
+
+        .action-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+    }
+
+    &.primary {
+        background: #388E3C;
+        border: none;
+
+        &:hover {
+            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+        }
+
+        .action-title,
+        .action-description {
+            color: white;
+        }
+
+        .action-description {
+            opacity: 0.9;
+        }
+
+        .action-icon-wrapper {
+            background-color: white;
+            color: #2E7D32;
+        }
+    }
+
+    &.secondary {
+        background: white;
+        border: 1px solid #eaeaea;
+
+        &:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border-color: #d9d9d9;
+        }
+
+        .action-title {
+            color: #1f1f1f;
+        }
+
+        .action-description {
+            color: #8c8c8c;
+        }
+
+        .action-icon-wrapper {
+            background-color: #2E7D32;
+            color: white;
+            border-radius: 8px; // Different button shape based on design
+        }
+    }
+}

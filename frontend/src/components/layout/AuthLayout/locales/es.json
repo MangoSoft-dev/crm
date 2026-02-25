@@ -1,0 +1,17 @@
+{
+    "layout": {
+        "sidebar": {
+            "quotes": "Módulo de Cotizaciones",
+            "billing": "Módulo de Facturación",
+            "docs": "Módulo de Documentación",
+            "config": "CONFIGURACIÓN",
+            "settings": "Ajustes",
+            "support": "Soporte",
+            "logout": "Cerrar Sesión"
+        },
+        "header": {
+            "searchPlaceholder": "Buscar cotizaciones, facturas...",
+            "role": "Administrador"
+        }
+    }
+}

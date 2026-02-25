@@ -1,0 +1,31 @@
+{
+    "login": {
+        "title": "Welcome to E-Services",
+        "subtitle": "Enter your credentials to access the system.",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "example@email.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "********",
+        "requiredEmail": "Please enter your email address",
+        "requiredPassword": "Please enter your password",
+        "validEmail": "Enter a valid email address",
+        "forgotPassword": "Forgot your password?",
+        "submit": "Log In",
+        "submitting": "Logging in...",
+        "noAccount": "Don't have an account?",
+        "register": "Register here",
+        "errorMsg": "Login failed. Please check your credentials.",
+        "networkError": "Network error. Please try again later."
+    },
+    "hero": {
+        "title": "Driving",
+        "titleHighlight": "technological growth",
+        "description": "A comprehensive platform to manage custom development services and cloud infrastructure, optimized exclusively for IngenioSoft clients."
+    },
+    "footer": {
+        "copyright": "Powered by IngenioSoft © 2026",
+        "help": "Help",
+        "privacy": "Privacy",
+        "terms": "Terms"
+    }
+}

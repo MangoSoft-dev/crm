@@ -1,0 +1,31 @@
+{
+    "login": {
+        "title": "Bienvenido a E-Services",
+        "subtitle": "Ingresa tus credenciales para acceder al sistema.",
+        "emailLabel": "Correo Electrónico",
+        "emailPlaceholder": "ejemplo@correo.com",
+        "passwordLabel": "Contraseña",
+        "passwordPlaceholder": "********",
+        "requiredEmail": "Por favor ingresa tu correo electrónico",
+        "requiredPassword": "Por favor ingresa tu contraseña",
+        "validEmail": "Ingresa un correo electrónico válido",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "submit": "Iniciar Sesión",
+        "submitting": "Iniciando...",
+        "noAccount": "¿No tienes cuenta?",
+        "register": "Regístrate aquí",
+        "errorMsg": "Error en el inicio de sesión. Revisa tus credenciales.",
+        "networkError": "Error de conexión. Inténtalo más tarde."
+    },
+    "hero": {
+        "title": "Impulsando el",
+        "titleHighlight": "crecimiento tecnológico",
+        "description": "Una plataforma integral para gestionar servicios de desarrollo a medida e infraestructura en la nube, optimizada exclusivamente para clientes de IngenioSoft."
+    },
+    "footer": {
+        "copyright": "Powered by IngenioSoft © 2026",
+        "help": "Ayuda",
+        "privacy": "Privacidad",
+        "terms": "Términos"
+    }
+}
