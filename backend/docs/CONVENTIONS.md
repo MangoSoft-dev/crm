@@ -13,6 +13,7 @@ The `src/` directory is strictly divided by responsibilities. You must respect t
   - **Key Location:** New mappings belong in `src/resolvers/data/`.
 - `services/`: Business Logic and pure SQL abstraction. ALWAYS extend from `ServiceBase`.
   - **Key Location:** New services belong in `src/services/`.
+  - **Nested Resolution:** If a service needs to resolve data belonging to another entity (e.g., hydrating nested GraphQL types like fetching an `Account` for a `User`), instantiate the other service internally using `new OtherService(this.db)` to share the transaction context and DB connection. Internal resolution methods should not be mapped to GraphQL unless explicitly required.
 - `test/`: Unit tests in Jest. **MUST be separated per method file and use Injection of Database Mocks.**
 
 ## ✍🏻 Naming & Documentation Conventions

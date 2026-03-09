@@ -35,7 +35,7 @@ describe('Account Service - getAccountById', () => {
         const accountIdToLookup = 10;
 
         // Act
-        const result = await accountService.getAccountById(accountIdToLookup);
+        const result = await accountService.getAccountById({ id: accountIdToLookup }, null, null, Object.keys(accountService.cols));
 
         // Assert
         expect(mockDb.getFirst).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe('Account Service - getAccountById', () => {
         mockDb.getFirst.mockRejectedValueOnce(new Error(errorMessage));
 
         // Act & Assert
-        await expect(accountService.getAccountById(5)).rejects.toThrow(errorMessage);
+        await expect(accountService.getAccountById({ id: 5 }, null, null, Object.keys(accountService.cols))).rejects.toThrow(errorMessage);
         expect(mockDb.getFirst).toHaveBeenCalledTimes(1);
     });
 });

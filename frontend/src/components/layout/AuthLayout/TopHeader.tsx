@@ -54,7 +54,7 @@ export const TopHeader: React.FC = () => {
                             {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
                         </span>
                         <span className="user-role">
-                            {user?.account ? user.account.name : t('layout.header.role')}
+                            {user?.email ? user.email : t('layout.header.role')}
                         </span>
                     </div>
                     <Avatar

@@ -11,11 +11,13 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../../features/auth';
 import './Sidebar.scss';
+import { useUserStore } from '../../../features/user';
 
 const { Sider } = Layout;
 
 export const Sidebar: React.FC = () => {
     const logout = useAuthStore((state) => state.logout);
+    const user = useUserStore((state) => state.user);
     const { t } = useTranslation('layout');
 
     return (
@@ -25,8 +27,8 @@ export const Sidebar: React.FC = () => {
                     <BarChartOutlined className="logo-icon" />
                 </div>
                 <div className="logo-text">
-                    <span className="logo-title">E-Services</span>
-                    <span className="logo-subtitle">INGENIOSOFT</span>
+                    <span className="logo-title">CRM</span>
+                    <span className="logo-subtitle">{user?.account?.name}</span>
                 </div>
             </div>
 

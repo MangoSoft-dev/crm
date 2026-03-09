@@ -145,6 +145,23 @@ export class ServiceBase {
 
         return fields
     }
+
+    /**
+   * Helper to cleanly separate requested Account fields from User fields,
+   * ensuring that 'typeId' is fetched so we can resolve the Account later.
+   */
+    extractTypeSelection(typeName: string, selectionSetList: string[]) {
+        const hasType: boolean = selectionSetList.some(field => field === typeName || field.startsWith(`${typeName}/`));
+        const filterFields = selectionSetList.filter(field => field !== typeName && !field.startsWith(`${typeName}/`));
+        const typeFields = selectionSetList.filter(field => field.startsWith(`${typeName}/`)).map(field => field.replace(`${typeName}/`, ''));
+
+        // We need typeId to fetch the type data
+        if (hasType && !filterFields.includes(`${typeName}Id`)) {
+            filterFields.push(`${typeName}Id`);
+        }
+
+        return { hasType, filterFields, typeFields };
+    }
 }
 
 export default ServiceBase

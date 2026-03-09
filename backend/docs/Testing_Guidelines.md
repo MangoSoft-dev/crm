@@ -65,6 +65,24 @@ describe('Subdomain - methodName', () => {
 });
 ```
 
+### Mocking Nested Service Calls
+If your method instantiates another service internally (e.g., resolving a nested GraphQL entity using `new Account(this.db)`), the nested service will use the exact same `mockDb` instance. You must provide mock responses for the queries executed by the nested service in the correct sequence.
+
+```typescript
+    it('should mock nested service DB responses', async () => {
+        // 1. Mock the primary service DB call
+        mockDb.query.mockResolvedValueOnce({ rows: [{ id: 1, accountId: 10 }] });
+        // 2. Mock the nested service DB call (e.g. new Account(this.db).getAccountById(10))
+        mockDb.getFirst.mockResolvedValueOnce({ id: 10, name: 'Test Account' });
+        
+        const result = await serviceInstance.methodWithNestedResolution({}, mockIdentity, null, ['id', 'account']);
+        
+        expect(mockDb.query).toHaveBeenCalledTimes(1);
+        expect(mockDb.getFirst).toHaveBeenCalledTimes(1);
+        expect(result.account.name).toBe('Test Account');
+    });
+```
+
 ## 3. Execution Commands
 
 To start or check that nothing is broken, use the configured CLI scripts:

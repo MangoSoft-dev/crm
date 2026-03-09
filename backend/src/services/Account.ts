@@ -19,11 +19,11 @@ export class Account extends ServiceBase {
      * @param id - The unique ID of the account to retrieve.
      * @returns A promise resolving to the account object if found and active (not deleted), otherwise throws an error mapping.
      */
-    public async getAccountById(id: string | number) {
+    public async getAccountById(args: { id: string | number }, identity: any, root: any, selectionSetList: string[]) {
+        const { id } = args;
         console.log(this.key, this.route, "getAccountById", { id });
         try {
             // Re-using the getFieldsValues functionality but manually mapped for an internal signature
-            const selectionSetList = Object.keys(this.cols);
             const fields = this.getFieldsValues(selectionSetList).join(', ');
 
             const query = `SELECT ${fields} FROM "security".accounts WHERE id = $1 AND deleted = 0`;
