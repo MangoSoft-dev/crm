@@ -1,0 +1,10 @@
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://192.168.1.94:11434",
+    "ANTHROPIC_AUTH_TOKEN": "ollama",
+    "ANTHROPIC_API_KEY": "",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3-coder",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "qwen3-coder",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "qwen3-coder"
+  }
+}
