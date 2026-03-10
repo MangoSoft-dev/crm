@@ -56,7 +56,12 @@ export const LoginForm: React.FC = () => {
                     label={
                         <div className="password-label-container">
                             <span>{t('login.passwordLabel')}</span>
-                            <Link className="forgot-password-link">{t('login.forgotPassword')}</Link>
+                            <Link 
+                                className="forgot-password-link" 
+                                href="/auth/recovery"
+                            >
+                                {t('login.forgotPassword')}
+                            </Link>
                         </div>
                     }
                     className="password-form-item"
