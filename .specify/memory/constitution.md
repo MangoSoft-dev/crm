@@ -1,50 +1,135 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+==================
+Version change: (blank template) → 1.0.0
+Modified principles: N/A (initial ratification)
+Added sections:
+  - Core Principles (I–V)
+  - Technology Stack
+  - Development Workflow
+  - Governance
+Removed sections: N/A
+Templates requiring updates:
+  - .specify/templates/plan-template.md ✅ — Constitution Check section references this constitution
+  - .specify/templates/spec-template.md ✅ — No updates required; sections align with principles
+  - .specify/templates/tasks-template.md ✅ — Task phases align with principles; no structural change needed
+Follow-up TODOs:
+  - None — all placeholders resolved from CLAUDE.md
+-->
+
+# MangoSoft CRM Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Multi-Tenant Isolation (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Every database query that reads, writes, or deletes data MUST include a
+`WHERE account_id = $N` filter using `identity.accountId` from the JWT.
+No cross-tenant data leakage is acceptable under any circumstances.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+- MUST use parameterized queries — no string interpolation of account IDs.
+- `identity` is always the decoded JWT: `identity.id` (user), `identity.accountId` (tenant).
+- Violation of this principle constitutes a critical security defect and MUST block any merge.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Three-Layer Declarative GraphQL Architecture
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Every new backend entity MUST be implemented as exactly three files:
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+1. **Schema** (`schemas/data/<entity>.graphql`) — SDL types, inputs, Query/Mutation extensions.
+   Pagination shape: `{ items: [Type], rows: Int }`.
+2. **Resolver** (`resolvers/data/<Entity>.ts`) — Declarative mapping objects
+   `{ field, requestTemplate: { class, method }, type }`. Not traditional resolvers.
+3. **Service** (`services/<Entity>.ts`) — Business logic class extending `ServiceBase`,
+   registered in `services/index.ts`.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Adding layers, patterns, or abstractions beyond this three-file structure MUST be justified
+in the plan's Complexity Tracking table.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### III. Mock-DB Test Discipline
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Tests MUST inject a mock DB object into the service constructor. A real database MUST NOT
+be used in unit tests.
+
+- Mock pattern: `mockDb = { query: jest.fn(), getFirst: jest.fn(), execute: jest.fn() }`.
+- One test file per service method: `src/test/<entity>/<methodName>.test.ts`.
+- Every service method MUST have a `console.log(this.key, this.route, "methodName", args)`
+  call at its start and a JSDoc block.
+
+### IV. Soft Delete & Audit Trail
+
+Data MUST never be permanently deleted via SQL `DELETE` statements.
+
+- Reads MUST filter `WHERE deleted = 0`.
+- Deletes MUST use `UPDATE ... SET deleted = 1, deleted_by = $N`.
+- Every mutable entity MUST track `created_by`, `updated_by`, `deleted_by`.
+- Throw `GraphQLError` with extensions for all errors. Raw PostgreSQL errors MUST NOT be
+  exposed to clients.
+
+### V. Frontend State Separation
+
+Remote (server) state and client (UI) state MUST be managed through separate mechanisms.
+
+- Remote state: TanStack Query hooks in `features/[name]/api/`. MUST NOT be stored in
+  Zustand or global state.
+- Client state: Zustand or React Context for UI-only concerns (sidebar, theme, etc.).
+- Styling: Ant Design + Bootstrap grid/utilities + SCSS modules. Inline styles are PROHIBITED.
+  Tailwind is PROHIBITED.
+- Inter-feature imports MUST go through `features/[name]/index.ts` public API.
+
+## Technology Stack
+
+The following technology choices are fixed for this project. Deviations require an explicit
+constitution amendment.
+
+| Layer | Technology | Notes |
+|---|---|---|
+| Backend runtime | Node.js / Express 5 | TypeScript |
+| GraphQL server | Apollo Server | Two endpoints: `/api/auth` (public), `/api/data` (JWT-required) |
+| Database | PostgreSQL | Direct `pg` driver — no ORM |
+| Auth | Passport.js | JWT + Header API Key strategies |
+| Frontend framework | React (SPA) | TypeScript, Vite |
+| Frontend state | TanStack Query + Zustand | See Principle V |
+| UI library | Ant Design + Bootstrap | SCSS modules for custom styles |
+| Testing | Jest | Backend unit tests with mock DB |
+| Third-party integrations | Google APIs, SMTP/nodemailer | In `integrations/` directory |
+
+## Development Workflow
+
+- **Feature branches**: All work MUST be on a named feature branch; no direct commits to `main`.
+- **Schema-first**: For any new entity, the `.graphql` schema file MUST be written and reviewed
+  before the resolver or service is created.
+- **Test before merge**: Every new service method MUST have a corresponding Jest test file.
+  Tests MUST be written against a mock DB (see Principle III).
+- **N+1 prevention**: Nested entity resolution for list queries MUST be resolved in bulk.
+  Instantiate `new OtherService(this.db)` to share DB context; check `selectionSetList` before
+  issuing additional queries.
+- **Code review gate**: All PRs MUST verify compliance with Principles I–V before merging.
+  A compliance checklist SHOULD be included in the PR description.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices for MangoSoft CRM. When a
+practice described elsewhere (wiki, README, verbal convention) conflicts with this document,
+this document takes precedence.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Amendment procedure**:
+1. Open a PR with the proposed change to `.specify/memory/constitution.md`.
+2. Describe the motivation and the impact on existing code.
+3. Run `/speckit.constitution` to regenerate and validate the document.
+4. Obtain at least one peer review before merging.
+5. Update any affected templates or downstream artifacts noted in the Sync Impact Report.
+
+**Versioning policy** (semantic):
+- MAJOR: Removal or redefinition of a principle that breaks existing patterns.
+- MINOR: New principle or section added; materially expanded guidance.
+- PATCH: Clarifications, wording, or typo fixes with no semantic change.
+
+**Compliance review**: Every sprint retrospective SHOULD include a brief review of any
+unresolved constitution violations tracked in the project's issue tracker.
+
+**Runtime guidance**: See `CLAUDE.md` at the repository root for agent-specific conventions
+(naming, SQL patterns, directory layout) that complement but do not override this constitution.
+
+---
+
+**Version**: 1.0.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-11
