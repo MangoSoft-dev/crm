@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Input, Button, Typography, Alert } from 'antd';
 import { MailOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useLoginForm } from '../hooks';
 import './LoginForm.scss';
 
@@ -9,6 +10,7 @@ const { Title, Text, Link } = Typography;
 
 export const LoginForm: React.FC = () => {
     const { t } = useTranslation('auth');
+    const navigate = useNavigate();
     const { form, errorMessage, isLoading, handleSubmit } = useLoginForm();
 
     return (
@@ -56,7 +58,7 @@ export const LoginForm: React.FC = () => {
                     label={
                         <div className="password-label-container">
                             <span>{t('login.passwordLabel')}</span>
-                            <Link className="forgot-password-link">{t('login.forgotPassword')}</Link>
+                            <Link className="forgot-password-link" onClick={() => navigate('/forgot-password')}>{t('login.forgotPassword')}</Link>
                         </div>
                     }
                     className="password-form-item"

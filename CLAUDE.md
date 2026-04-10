@@ -77,3 +77,10 @@ Two GraphQL servers exposed:
 - Files/Folders: camelCase or PascalCase for classes. GraphQL schemas: lowercase `.graphql`.
 - Variables/functions: camelCase. Constants: UPPER_SNAKE_CASE. Classes: PascalCase named exports.
 - PostgreSQL: double-quote schema names (e.g., `"security".users`). Cast dynamic arrays (`$1::int[]`).
+
+## Active Technologies
+- TypeScript 5 / React 18 + TanStack Query (useMutation), Ant Design 5, React Router DOM 6, (003-forgot-password)
+- N/A — frontend-only; backend handles temporary password generation and email (003-forgot-password)
+
+## Recent Changes
+- 003-forgot-password: Added TypeScript 5 / React 18 + TanStack Query (useMutation), Ant Design 5, React Router DOM 6,

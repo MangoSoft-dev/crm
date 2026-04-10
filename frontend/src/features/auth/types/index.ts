@@ -22,3 +22,7 @@ export type AuthenticationResult = Authentication | CustomResponse;
 export const isAuthentication = (result: AuthenticationResult): result is Authentication => {
     return (result as Authentication).token !== undefined;
 };
+
+export interface ForgotPasswordValues {
+    email: string;
+}

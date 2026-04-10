@@ -22,6 +22,20 @@
         "titleHighlight": "technological growth",
         "description": "A comprehensive platform to manage custom development services and cloud infrastructure, optimized exclusively for IngenioSoft clients."
     },
+    "forgotPassword": {
+        "title": "Recover Your Password",
+        "subtitle": "Enter your email and we'll send you a temporary password.",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "example@email.com",
+        "requiredEmail": "Please enter your email address",
+        "validEmail": "Enter a valid email address",
+        "submit": "Send Temporary Password",
+        "submitting": "Sending...",
+        "successTitle": "Check your inbox!",
+        "successMessage": "We've sent you a temporary password. Use it to log in and change it right away.",
+        "backToLogin": "Back to login",
+        "networkError": "Network error. Please try again later."
+    },
     "footer": {
         "copyright": "Powered by IngenioSoft © 2026",
         "help": "Help",

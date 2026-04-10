@@ -22,6 +22,20 @@
         "titleHighlight": "crecimiento tecnológico",
         "description": "Una plataforma integral para gestionar servicios de desarrollo a medida e infraestructura en la nube, optimizada exclusivamente para clientes de IngenioSoft."
     },
+    "forgotPassword": {
+        "title": "Recupera tu contraseña",
+        "subtitle": "Ingresa tu correo y te enviaremos una contraseña temporal.",
+        "emailLabel": "Correo Electrónico",
+        "emailPlaceholder": "ejemplo@correo.com",
+        "requiredEmail": "Por favor ingresa tu correo electrónico",
+        "validEmail": "Ingresa un correo electrónico válido",
+        "submit": "Enviar contraseña temporal",
+        "submitting": "Enviando...",
+        "successTitle": "¡Revisa tu correo!",
+        "successMessage": "Te hemos enviado una contraseña temporal. Úsala para iniciar sesión y cámbiala de inmediato.",
+        "backToLogin": "Volver al inicio de sesión",
+        "networkError": "Error de conexión. Inténtalo más tarde."
+    },
     "footer": {
         "copyright": "Powered by IngenioSoft © 2026",
         "help": "Ayuda",
